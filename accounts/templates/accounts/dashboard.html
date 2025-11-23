@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد - IranSoft</title>
+
+    <!-- Vazirmatn Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#172554',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-primary-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+                <span class="text-xl font-bold text-slate-900">IranSoft</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-slate-600" id="phone-number">{{ phone_number }}</span>
+                <button onclick="logout()"
+                    class="text-sm text-red-600 hover:text-red-700 font-medium transition-colors">
+                    خروج
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Welcome Card -->
+        <div class="gradient-bg rounded-2xl p-8 mb-8 text-white shadow-xl">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">خوش آمدید! 🎉</h1>
+                    <p class="text-white/90 text-lg">ورود شما با موفقیت انجام شد</p>
+                    <p class="text-white/80 text-sm mt-2">شماره موبایل: <span id="welcome-phone">{{ phone_number }}</span></p>
+                </div>
+                <div class="hidden md:block">
+                    <svg class="w-24 h-24 text-white/20" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <!-- Stat Card 1 -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-bold text-slate-900">{{ is_new_user|yesno:"جدید,فعال" }}</span>
+                </div>
+                <h3 class="text-slate-600 text-sm font-medium">وضعیت حساب</h3>
+            </div>
+
+            <!-- Stat Card 2 -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-bold text-slate-900" id="current-time"></span>
+                </div>
+                <h3 class="text-slate-600 text-sm font-medium">زمان ورود</h3>
+            </div>
+
+            <!-- Stat Card 3 -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-bold text-slate-900">فعال</span>
+                </div>
+                <h3 class="text-slate-600 text-sm font-medium">دسترسی</h3>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-100">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">اطلاعات احراز هویت</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <span class="text-slate-600">توکن دسترسی (Access Token)</span>
+                    <code class="text-xs bg-slate-100 px-3 py-1 rounded font-mono"
+                        id="access-token">در حال بارگذاری...</code>
+                </div>
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <span class="text-slate-600">توکن تازه‌سازی (Refresh Token)</span>
+                    <code class="text-xs bg-slate-100 px-3 py-1 rounded font-mono"
+                        id="refresh-token">در حال بارگذاری...</code>
+                </div>
+                <div class="flex items-center justify-between py-3">
+                    <span class="text-slate-600">کاربر جدید</span>
+                    <span class="text-sm font-medium text-slate-900">{{ is_new_user|yesno:"بله,خیر" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex gap-4">
+            <a href="{% url 'index' %}"
+                class="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-xl transition-colors text-center shadow-lg hover:shadow-xl">
+                بازگشت به صفحه اصلی
+            </a>
+            <button onclick="logout()"
+                class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition-colors shadow-lg hover:shadow-xl">
+                خروج از حساب
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Display current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Display tokens from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (accessToken) {
+            document.getElementById('access-token').textContent = accessToken.substring(0, 30) + '...';
+        }
+        if (refreshToken) {
+            document.getElementById('refresh-token').textContent = refreshToken.substring(0, 30) + '...';
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '{% url "login" %}';
+        }
+
+        // Redirect to login if no token
+        if (!accessToken) {
+            window.location.href = '{% url "login" %}';
+        }
+    </script>
+
+</body>
+
+</html>

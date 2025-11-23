@@ -1,0 +1,322 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود به حساب کاربری</title>
+
+    <!-- Fonts: Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        vazir: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#111827', // Gray 900 (Uber-like black)
+                        primaryHover: '#374151', // Gray 700
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom smooth transition for inputs */
+        .input-transition {
+            transition: all 0.3s ease;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gray-50 h-screen flex items-center justify-center font-vazir text-gray-800 antialiased selection:bg-gray-200 selection:text-gray-900">
+
+    <!-- Main Card -->
+    <div x-data="authComponent()"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 mx-4 relative overflow-hidden border border-gray-100">
+
+        <!-- Error Alert -->
+        <div x-show="error" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 -translate-y-4"
+            class="absolute top-0 left-0 right-0 bg-red-50 border-b border-red-100 text-red-600 px-6 py-3 text-sm font-medium flex items-center gap-2"
+            x-cloak>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span x-text="error"></span>
+            <button @click="error = null" class="mr-auto text-red-400 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <div class="text-center mb-8 mt-4">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">خوش‌آمدید</h1>
+            <p class="text-gray-500 text-sm">لطفاً برای ورود شماره موبایل خود را وارد کنید</p>
+        </div>
+
+        <!-- Form Container -->
+        <div class="space-y-6">
+
+            <!-- Step 1: Mobile Number -->
+            <div x-show="step === 1" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 -translate-x-8">
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">شماره موبایل</label>
+                <div class="relative">
+                    <input type="tel" x-model="mobile" @keydown.enter="sendOtp" placeholder="09123456789"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none input-transition text-left bg-gray-50 focus:bg-white text-lg tracking-widest"
+                        :class="{'border-red-300 focus:border-red-500 focus:ring-red-200': error}" maxlength="11">
+
+                </div>
+
+                <button @click="sendOtp" :disabled="isLoading"
+                    class="w-full mt-6 bg-primary hover:bg-primaryHover text-white font-bold py-3 rounded-xl shadow-lg shadow-gray-200 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span x-show="!isLoading">ارسال کد تایید</span>
+                    <span x-show="isLoading" class="flex items-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>لطفاً صبر کنید...</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Step 2: OTP -->
+            <div x-show="step === 2" x-cloak x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 -translate-x-8">
+
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-sm font-medium text-gray-700">کد تایید را وارد کنید</label>
+                    <button @click="changeNumber" class="text-xs text-blue-600 hover:text-blue-800 font-medium">ویرایش
+                        شماره</button>
+                </div>
+
+                <div class="relative">
+                    <input type="text" x-model="otp" @keydown.enter="verifyOtp" placeholder="----"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none input-transition text-center text-2xl tracking-[0.5em] bg-gray-50 focus:bg-white font-bold"
+                        :class="{'border-red-300 focus:border-red-500 focus:ring-red-200': error}" maxlength="4">
+                </div>
+
+                <div class="mt-4 flex justify-between items-center text-sm">
+                    <span class="text-gray-500">کد دریافت نکردید؟</span>
+                    <template x-if="timer > 0">
+                        <span class="text-gray-400 font-mono" x-text="formatTime(timer)"></span>
+                    </template>
+                    <template x-if="timer === 0">
+                        <button @click="resendCode"
+                            class="text-blue-600 hover:text-blue-800 font-medium transition-colors">ارسال مجدد</button>
+                    </template>
+                </div>
+
+                <button @click="verifyOtp" :disabled="isLoading"
+                    class="w-full mt-6 bg-primary hover:bg-primaryHover text-white font-bold py-3 rounded-xl shadow-lg shadow-gray-200 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span x-show="!isLoading">ورود</span>
+                    <span x-show="isLoading" class="flex items-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>بررسی...</span>
+                    </span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <p class="text-xs text-gray-400">
+                با ورود به سیستم، <a href="#" class="underline hover:text-gray-600">قوانین و مقررات</a> را می‌پذیرم.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function authComponent() {
+            return {
+                step: 1,
+                mobile: '',
+                otp: '',
+                isLoading: false,
+                error: null,
+                timer: 120,
+                timerInterval: null,
+
+                init() {
+                    // Optional: Auto-focus logic or init checks
+                },
+
+                validateMobile() {
+                    const regex = /^09[0-9]{9}$/;
+                    return regex.test(this.mobile);
+                },
+
+                async sendOtp() {
+                    this.error = null;
+
+                    if (!this.mobile) {
+                        this.error = 'لطفاً شماره موبایل را وارد کنید';
+                        return;
+                    }
+
+                    if (!this.validateMobile()) {
+                        this.error = 'شماره موبایل نامعتبر است (مثال: 09123456789)';
+                        return;
+                    }
+
+                    this.isLoading = true;
+
+                    try {
+                        const csrftoken = getCookie('csrftoken');
+                        const response = await fetch('/api/auth/send-otp/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrftoken
+                            },
+                            body: JSON.stringify({ phone_number: this.mobile })
+                        });
+
+                        if (!response.ok) {
+                            const data = await response.json();
+                            throw new Error(data.error || 'خطا در ارسال کد');
+                        }
+
+                        this.step = 2;
+                        this.startTimer();
+
+                    } catch (err) {
+                        this.error = err.message || 'خطایی رخ داده است';
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                async verifyOtp() {
+                    this.error = null;
+
+                    if (!this.otp || this.otp.length !== 4) {
+                        this.error = 'لطفاً کد ۴ رقمی را کامل وارد کنید';
+                        return;
+                    }
+
+                    this.isLoading = true;
+
+                    try {
+                        const csrftoken = getCookie('csrftoken');
+                        const response = await fetch('/api/auth/verify-otp/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrftoken
+                            },
+                            body: JSON.stringify({ phone_number: this.mobile, code: this.otp })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'کد اشتباه است');
+
+                        // Success Action
+                        if (data.access) {
+                            localStorage.setItem('access_token', data.access);
+                            localStorage.setItem('refresh_token', data.refresh);
+                            // Redirect to dashboard with user info
+                            const isNewUser = data.is_new_user ? 'true' : 'false';
+                            window.location.href = `/dashboard/?phone=${encodeURIComponent(this.mobile)}&new=${isNewUser}`;
+                        }
+
+                    } catch (err) {
+                        this.error = err.message || 'خطایی رخ داده است';
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                startTimer() {
+                    this.timer = 120;
+                    if (this.timerInterval) clearInterval(this.timerInterval);
+                    this.timerInterval = setInterval(() => {
+                        if (this.timer > 0) {
+                            this.timer--;
+                        } else {
+                            clearInterval(this.timerInterval);
+                        }
+                    }, 1000);
+                },
+
+                resendCode() {
+                    this.otp = '';
+                    this.sendOtp();
+                },
+
+                changeNumber() {
+                    this.step = 1;
+                    this.otp = '';
+                    this.error = null;
+                    if (this.timerInterval) clearInterval(this.timerInterval);
+                },
+
+                formatTime(seconds) {
+                    const m = Math.floor(seconds / 60);
+                    const s = seconds % 60;
+                    return `${m}:${s.toString().padStart(2, '0')}`;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
