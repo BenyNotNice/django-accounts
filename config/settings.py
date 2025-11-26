@@ -153,12 +153,24 @@ SIMPLE_JWT = {
 KAVEHNEGAR_API_KEY = os.environ.get('KAVEHNEGAR_API_KEY', 'YOUR_API_KEY_HERE')
 
 # Cache
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_URL', "redis://127.0.0.1:6379/1"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+# Use in-memory cache for local development without Redis
+# For production with Redis, uncomment the django_redis configuration
+if DEBUG:
+    # Local development without Redis
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
         }
     }
-}
+else:
+    # Production with Redis
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.environ.get('REDIS_URL', "redis://127.0.0.1:6379/1"),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        }
+    }
